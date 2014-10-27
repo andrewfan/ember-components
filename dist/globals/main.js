@@ -2540,7 +2540,7 @@ ActionGroup = Component.extend(WithConfigMixin, {
 exports["default"] = ActionGroup;;
 },{}],38:[function(_dereq_,module,exports){
 "use strict";
-exports["default"] = Ember.Handlebars.compile("{{#em-modal-title}}\n    {{#em-modal-toggler class=\"close\"}}<span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span>{{/em-modal-toggler}}\n    <h4 class=\"modal-title\">Enter link address</h4>\n{{/em-modal-title}}\n\n{{#em-modal-body}}\n      {{input placeholder=\"Title\" action=\"addLink\" value=selection class=\"form-control\"}}\n      {{input placeholder=\"http://example.com\" action=\"addLink\" value=linkHref class=\"form-control\"}}\n{{/em-modal-body}}\n{{#em-modal-footer}}\n    <button type=\"submit\" class=\"btn btn-primary\" {{ action \'addLink\' }}>Add link</button>\n    {{#em-modal-toggler class=\"btn btn-default\"}}Close{{/em-modal-toggler}}\n{{/em-modal-footer}}\n");
+exports["default"] = Ember.Handlebars.compile("{{#em-modal-title}}\n    {{#em-modal-toggler class=\"close\"}}<span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span>{{/em-modal-toggler}}\n    <h4 class=\"modal-title\">Enter link address</h4>\n{{/em-modal-title}}\n\n{{#em-modal-body}}\n      {{input placeholder=\"Text\" action=\"addLink\" value=selection class=\"form-control\"}}\n      {{input placeholder=\"http://example.com\" action=\"addLink\" value=linkHref class=\"form-control\"}}\n{{/em-modal-body}}\n{{#em-modal-footer}}\n    <button type=\"submit\" class=\"btn btn-primary\" {{ action \'addLink\' }}>Add link</button>\n    {{#em-modal-toggler class=\"btn btn-default\"}}Close{{/em-modal-toggler}}\n{{/em-modal-footer}}\n");
 },{}],39:[function(_dereq_,module,exports){
 "use strict";
 var Component = window.Ember.Component;
@@ -2563,7 +2563,8 @@ Link = Component.extend(WithConfigMixin, {
     container = this.get('container');
     container.register('view:link-modal-view' + this.get('_parentView._uuid'), Modal.extend({
       templateName: 'em-wysiwyg-action-link',
-      _parentView: this
+      _parentView: this,
+      configName: 'bs'
     }));
     this.set('modal', container.lookup('view:link-modal-view' + this.get('_parentView._uuid')));
     return this.get('modal').append();
@@ -2621,7 +2622,12 @@ Link = Component.extend(WithConfigMixin, {
         }
       };
     })(this));
-  }).on('init')
+  }).on('init'),
+  onDelete: (function() {
+    console.log(this.get('modal'));
+    window.mm = this.get('modal');
+    return this.get('modal').remove();
+  }).on('willDestroyElement')
 });
 
 exports["default"] = Link;;

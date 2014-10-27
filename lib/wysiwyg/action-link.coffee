@@ -16,7 +16,8 @@ Link = Component.extend WithConfigMixin,
 
         container.register 'view:link-modal-view'+@get('_parentView._uuid'), Modal.extend({
             templateName: 'em-wysiwyg-action-link'
-            _parentView: @
+            _parentView: @,
+            configName: 'bs'
         })
 
         @set 'modal', container.lookup('view:link-modal-view'+@get('_parentView._uuid'))
@@ -71,6 +72,12 @@ Link = Component.extend WithConfigMixin,
                 @set 'linkHref', ''
                 @set 'active', false
         )
-    ).on('init')
+    ).on('init'),
+
+    onDelete: (->
+        console.log @get('modal')
+        window.mm = @get 'modal'
+        @get('modal').remove()
+    ).on('willDestroyElement')
 
 `export default Link;`

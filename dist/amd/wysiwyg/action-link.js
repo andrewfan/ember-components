@@ -22,7 +22,8 @@ define(
         container = this.get('container');
         container.register('view:link-modal-view' + this.get('_parentView._uuid'), Modal.extend({
           templateName: 'em-wysiwyg-action-link',
-          _parentView: this
+          _parentView: this,
+          configName: 'bs'
         }));
         this.set('modal', container.lookup('view:link-modal-view' + this.get('_parentView._uuid')));
         return this.get('modal').append();
@@ -80,7 +81,12 @@ define(
             }
           };
         })(this));
-      }).on('init')
+      }).on('init'),
+      onDelete: (function() {
+        console.log(this.get('modal'));
+        window.mm = this.get('modal');
+        return this.get('modal').remove();
+      }).on('willDestroyElement')
     });
 
     __exports__["default"] = Link;;
