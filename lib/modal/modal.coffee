@@ -126,10 +126,13 @@ ModalComponent = Component.extend WithConfigMixin, StyleBindingsMixin,
     ###
     open: ->
         #Send action to the controller during modal open time
-        @sendAction 'show', @
+        if not @get 'is-covered' then @sendAction 'show', @
         @set 'is-open', 'true'
         #Wait for component to get rendered, required for CSS effects and to notify consumers that the modal is visible now
         run.schedule('afterRender', @, ->
+            run.next(@, ->
+              @$().focus()
+            )
             @set 'did-open', 'true'
             @trigger 'shown'
         )
@@ -145,7 +148,29 @@ ModalComponent = Component.extend WithConfigMixin, StyleBindingsMixin,
         @sendAction 'hide', @
         @set 'is-open', undefined
         @set 'did-open', undefined
+        @set 'is-covered', undefined
         #TODO: What about hidden event?
+
+    ###*
+    # Make sure that modal will be closed when element is removing from DOM
+    # @method willDestroyElement
+    # @public
+    ###
+    willDestroyElement: ->
+      @.close()
+
+    'is-covered': false
+
+    ###*
+    # Close the modal by making it invisible. Without triggering 'hide' action
+    # @method cover
+    # @public
+    ###
+    cover: ->
+      @sendAction 'suspend', @
+      @set 'is-covered', 'true'
+      @set 'is-open', undefined
+      @set 'did-open', undefined
 
     ###*
     # Toggle the visibility of the modal based on its current state.
@@ -175,12 +200,12 @@ ModalComponent = Component.extend WithConfigMixin, StyleBindingsMixin,
 
     ###*
     # Close the modal if the user clicks outside of the modal space.
-    # @method closeIfClickedOutside
+    # @method coverIfClickedOutside
     # @private
     ###
-    closeIfClickedOutside:  ((e)->
+    coverIfClickedOutside:  ((e)->
         return if e.target isnt @get('element')
-        @close()
+        @cover()
     ).on('click')
 
     ###*
