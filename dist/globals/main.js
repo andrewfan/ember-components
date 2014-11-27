@@ -1359,9 +1359,14 @@ ModalComponent = Component.extend(WithConfigMixin, StyleBindingsMixin, {
    * @public
    */
   open: function() {
-    this.sendAction('show', this);
+    if (!this.get('is-covered')) {
+      this.sendAction('show', this);
+    }
     this.set('is-open', 'true');
     return run.schedule('afterRender', this, function() {
+      run.next(this, function() {
+        return this.$().focus();
+      });
       this.set('did-open', 'true');
       return this.trigger('shown');
     });
@@ -1374,6 +1379,29 @@ ModalComponent = Component.extend(WithConfigMixin, StyleBindingsMixin, {
    */
   close: function() {
     this.sendAction('hide', this);
+    this.set('is-open', void 0);
+    this.set('did-open', void 0);
+    return this.set('is-covered', void 0);
+  },
+
+  /**
+   * Make sure that modal will be closed when element is removing from DOM
+   * @method willDestroyElement
+   * @public
+   */
+  willDestroyElement: function() {
+    return this.close();
+  },
+  'is-covered': false,
+
+  /**
+   * Close the modal by making it invisible. Without triggering 'hide' action
+   * @method cover
+   * @public
+   */
+  cover: function() {
+    this.sendAction('suspend', this);
+    this.set('is-covered', 'true');
     this.set('is-open', void 0);
     return this.set('did-open', void 0);
   },
@@ -1413,14 +1441,14 @@ ModalComponent = Component.extend(WithConfigMixin, StyleBindingsMixin, {
 
   /**
    * Close the modal if the user clicks outside of the modal space.
-   * @method closeIfClickedOutside
+   * @method coverIfClickedOutside
    * @private
    */
-  closeIfClickedOutside: (function(e) {
+  coverIfClickedOutside: (function(e) {
     if (e.target !== this.get('element')) {
       return;
     }
-    return this.close();
+    return this.cover();
   }).on('click'),
 
   /**
